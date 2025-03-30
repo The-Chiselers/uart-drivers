@@ -46,8 +46,6 @@
 #define RX_FLUSH_OFFSET 0x8C
 #define TX_FLUSH_OFFSET 0x90
 
-#define DATA_COMMAND_PIN     0x10  // Data Register
-
 
 // Macro to access a register: given a mapped base pointer and offset
 #define REG(base, offset) (*(volatile uint8_t *)((char *)(base) + (offset)))
@@ -62,163 +60,181 @@
   REG(base, offset) =  (val); \
 } while (0)
 
-//------------------------------------------------------------------------------
-// Field Definitions for CTRLA (offset 0x0)
-//------------------------------------------------------------------------------
-// Bit 6 - DORD (Data Order: 0 = MSB first, 1 = LSB first)
-#define SPI_DORD_MASK      (0x40)
-#define SPI_DORD_SHIFT     (6)
-
-// Bit 5 - MASTER (Master mode: 0 = Slave, 1 = Master)
-#define SPI_MASTER_MASK    (0x20)
-#define SPI_MASTER_SHIFT   (5)
-
-// Bit 4 - CLK2X (Clock Double: 0 = not doubled, 1 = doubled)
-#define SPI_CLK2X_MASK     (0x10)
-#define SPI_CLK2X_SHIFT    (4)
-
-// Bits 2-1 - PRESC (Prescaler: 00: divide by 4, 01: divide by 16, 10: divide by 64, 11: divide by 128)
-#define SPI_PRESC_MASK     (0x06)
-#define SPI_PRESC_SHIFT    (1)
-
-// Bit 0 - ENABLE (SPI Enable: 0 = disabled, 1 = enabled)
-#define SPI_ENABLE_MASK    (0x01)
-#define SPI_ENABLE_SHIFT   (0)
-
-//------------------------------------------------------------------------------
-// Field Definitions for CTRLB (offset 0x4)
-//------------------------------------------------------------------------------
-// Bit 7 - BUFEN (Buffer Enable: 0 = disabled, 1 = enabled)
-#define SPI_BUFEN_MASK     (0x80)
-#define SPI_BUFEN_SHIFT    (7)
-
-// Bits 1-0 - MODE (SPI Mode: 00: Mode 0, 01: Mode 1, 10: Mode 2, 11: Mode 3)
-#define SPI_MODE_MASK      (0x03)
-#define SPI_MODE_SHIFT     (0)
-
-//------------------------------------------------------------------------------
-// Field Definitions for INTCTRL (offset 0x8)
-//------------------------------------------------------------------------------
-// Bit 6 - TXCIE (Transfer Complete Interrupt Enable: 0 = disabled, 1 = enabled)
-#define SPI_TXCIE_MASK     (0x40)
-#define SPI_TXCIE_SHIFT    (6)
-
-// Bit 0 - IE (Interrupt Enable: 0 = disabled, 1 = enabled)
-#define SPI_INTCTRL_IE_MASK  (0x01)
-#define SPI_INTCTRL_IE_SHIFT (0)
-
-//------------------------------------------------------------------------------
-// Field Definitions for INTFLAGS (offset 0xC)
-//------------------------------------------------------------------------------
-// Normal mode:
-// Bit 7 - IF (Interrupt Flag: 0 = no interrupt, 1 = transfer complete)
-#define SPI_IF_NORM_MASK        (0x80)
-#define SPI_IF_NORM_SHIFT       (7)
-
-// Buffer mode:
-// Bit 7 - IF (Interrupt Flag: 0 = no interrupt, 1 = transfer complete)
-#define SPI_TXCIF_SHIFT       (6)
-#define SPI_TXCIF_MASK        (1 << SPI_TXCIF_SHIFT)
-
-#define SPI_DREIF_SHIFT       (5)
-#define SPI_DREIF_MASK        (1 << SPI_DREIF_SHIFT)
 
 
+void uart_initialize(void);
+void uart_cleanup(void);
 
-// Bit 6 - WRCOL (Write Collision Flag: 0 = no collision, 1 = collision occurred)
-#define SPI_WRCOL_MASK     (0x40)
-#define SPI_WRCOL_SHIFT    (6)
+/* --------------------- Transmitter Functions --------------------- */
 
-//------------------------------------------------------------------------------
-// Macro for accessing the SPI data register (offset 0x10)
-#define SPI_DATA(base) (*(volatile uint8_t *)((char *)(base) + DATA_OFFSET))
+static inline void uart_tx_set_baudrate(volatile void* base, uint32_t clock_freq, uint32_t baud_rate) {
+    REGISTER_SET_VAL(base, TX_CLOCKFREQ_OFFSET, clock_freq);
+    REGISTER_SET_VAL(base, TX_BAUDRATE_OFFSET, baud_rate);
+    REGISTER_SET_VAL(base, TX_UPDATEBAUD_OFFSET, 1);
+}
 
-//------------------------------------------------------------------------------
-// Macros for register operations using the mapped base pointer
-//------------------------------------------------------------------------------
+static inline void uart_tx_set_num_data_bits(volatile void* base, uint8_t data_bits) {
+    REGISTER_SET_VAL(base, TX_NUMOUTPUTBITSDB_OFFSET, data_bits);
+}
 
-// CTRLA operations
-#define SET_SPI_DORD(base, val)      REGISTER_SET(base, CTRLA_OFFSET, SPI_DORD_MASK,   SPI_DORD_SHIFT, (val))
-#define SET_SPI_MASTER(base, val)    REGISTER_SET(base, CTRLA_OFFSET, SPI_MASTER_MASK, SPI_MASTER_SHIFT, (val))
-#define SET_SPI_CLK2X(base, val)     REGISTER_SET(base, CTRLA_OFFSET, SPI_CLK2X_MASK,  SPI_CLK2X_SHIFT, (val))
-#define SET_SPI_PRESC(base, val)     REGISTER_SET(base, CTRLA_OFFSET, SPI_PRESC_MASK,  SPI_PRESC_SHIFT, (val))
-#define SET_SPI_ENABLE(base, val)    REGISTER_SET(base, CTRLA_OFFSET, SPI_ENABLE_MASK, SPI_ENABLE_SHIFT, (val))
+static inline void uart_tx_set_use_parity(volatile void* base,
+                                          int use_parity) {
+    REGISTER_SET_VAL(base, TX_USEPARITYDB_OFFSET, use_parity ? 1 : 0);
+}
 
-// CTRLB operations
-#define SET_SPI_BUFEN(base, val)     REGISTER_SET(base, CTRLB_OFFSET, SPI_BUFEN_MASK,  SPI_BUFEN_SHIFT, (val))
-#define SET_SPI_MODE(base, val)      REGISTER_SET(base, CTRLB_OFFSET, SPI_MODE_MASK,   SPI_MODE_SHIFT, (val))
+static inline void uart_tx_set_parity_odd(volatile void* base, int parity_odd) {
+    REGISTER_SET_VAL(base, TX_PARITYODDDB_OFFSET, parity_odd ? 1 : 0);
+}
 
+static inline void uart_tx_set_lsb_first(volatile void* base, int lsb_first) {
+    REGISTER_SET_VAL(base, TX_LSBFIRST_OFFSET, lsb_first ? 1 : 0);
+}
 
-// INTCTRL operations
-#define SET_SPI_TXCIE(base, val)     REGISTER_SET(base, INTCTRL_OFFSET, SPI_TXCIE_MASK, SPI_TXCIE_SHIFT, (val))
-#define SET_SPI_INTCTRL_IE(base, val) REGISTER_SET(base, INTCTRL_OFFSET, SPI_INTCTRL_IE_MASK, SPI_INTCTRL_IE_SHIFT, (val))
+static inline int uart_tx_add_byte_to_queue(volatile void* base, uint8_t data) {
+    if (REG(base, TX_FIFOFULL_OFFSET)) return -1;
+    REGISTER_SET_VAL(base, TX_DATAIN_OFFSET, data);
+    return 0;
+}
 
-// Macro to read the IF flag from INTFLAGS (transfer complete indicator)
-#define GET_SPI_IF(base)             ((REG(base, INTFLAGS_OFFSET) & SPI_IF_NORM_MASK) >> SPI_IF_NORM_SHIFT)
-#define GET_SPI_DORD(base)           ((REG(base, CTRLA_OFFSET) & SPI_DORD_MASK) >> SPI_DORD_SHIFT)
-
-#define GET_SPI_MODE(base)           ((REG(base, CTRLB_OFFSET) & SPI_MODE_MASK) >> SPI_MODE_SHIFT)
-#define GET_SPI_TXCIF(base)             ((REG(base, INTFLAGS_OFFSET) & SPI_TXCIF_MASK) >> SPI_TXCIF_SHIFT)
-#define GET_SPI_DREIF(base)             ((REG(base, INTFLAGS_OFFSET) & SPI_DREIF_MASK) >> SPI_DREIF_SHIFT)
-
-#define CLEAR_TXCIF(base)           REGISTER_SET(base, INTFLAGS_OFFSET, SPI_TXCIF_MASK, SPI_TXCIF_SHIFT, (1))
-
+static inline void uart_tx_send_queue(volatile void* base, uint8_t data) {
+    REGISTER_SET_VAL(base, TX_LOAD_OFFSET, 1);
+}
 
 
+static inline int uart_tx_send_byte(volatile void* base, uint8_t data) {
+    if (REG(base, TX_FIFOFULL_OFFSET)) return -1;
+    REGISTER_SET_VAL(base, TX_DATAIN_OFFSET, data);
+    REGISTER_SET_VAL(base, TX_LOAD_OFFSET, 1);
+    return 0;
+}
+
+static inline void uart_tx_set_almost_full_level(volatile void* base, uint32_t almost_full_level) {
+    REGISTER_SET_VAL(base, TX_ALMOSTFULLLEVEL_OFFSET, almost_full_level);
+}
+
+static inline int uart_tx_fifo_full(volatile void* base) {
+    return (REG(base, TX_FIFOFULL_OFFSET) != 0);
+}
+
+static inline int uart_tx_fifo_almost_full(volatile void* base) {
+    return (REG(base, TX_FIFOALMOSTFULL_OFFSET) != 0);
+}
+
+static inline void uart_tx_set_almost_empty_level(volatile void* base, uint32_t almost_empty_level) {
+    REGISTER_SET_VAL(base, TX_ALMOSTEMPTYLEVEL_OFFSET, almost_empty_level);
+}
+
+static inline int uart_tx_fifo_empty(volatile void* base) {
+    return (REG(base, TX_FIFOEMPTY_OFFSET) != 0);
+}
+
+static inline int uart_tx_fifo_almost_empty(volatile void* base) {
+    return (REG(base, TX_FIFOALMOSTEMPTY_OFFSET) != 0);
+}
+
+static inline void uart_tx_flush(volatile void* base) {
+    REGISTER_SET_VAL(base, TX_FLUSH_OFFSET, 1);
+}
+
+/* --------------------- Receiver Functions --------------------- */
+
+static inline void uart_rx_set_baudrate(volatile void* base, uint32_t clock_freq, uint32_t baud_rate) {
+    REGISTER_SET_VAL(base, RX_CLOCKFREQ_OFFSET, clock_freq);
+    REGISTER_SET_VAL(base, RX_BAUDRATE_OFFSET, baud_rate);
+    REGISTER_SET_VAL(base, RX_UPDATEBAUD_OFFSET, 1);
+}
+
+static inline void uart_rx_set_num_data_bits(volatile void* base, uint8_t data_bits) {
+    REGISTER_SET_VAL(base, RX_NUMOUTPUTBITSDB_OFFSET, data_bits);
+}
+
+static inline void uart_rx_set_use_parity(volatile void* base,
+                                          int use_parity) {
+    REGISTER_SET_VAL(base, RX_USEPARITYDB_OFFSET, use_parity ? 1 : 0);
+}
+
+static inline void uart_rx_set_parity_odd(volatile void* base, int parity_odd) {
+    REGISTER_SET_VAL(base, RX_PARITYODDDB_OFFSET, parity_odd ? 1 : 0);
+}
+
+static inline void uart_rx_set_lsb_first(volatile void* base, int lsb_first) {
+    REGISTER_SET_VAL(base, RX_LSBFIRST_OFFSET, lsb_first ? 1 : 0);
+}
+
+static inline uint8_t uart_rx_read_byte(volatile void* base) {
+    return (uint8_t)REG(base, RX_DATA_OFFSET);
+}
+
+static inline uint8_t uart_rx_peek_byte(volatile void* base) {
+    return (uint8_t)REG(base, RX_DATAPEEK_OFFSET);
+}
+
+static inline int uart_rx_data_available(volatile void* base) {
+    return (REG(base, RX_DATAAVAILABLE_OFFSET) != 0);
+}
+
+static inline void uart_rx_set_almost_full_level(volatile void* base, uint32_t almost_full_level) {
+    REGISTER_SET_VAL(base, RX_ALMOSTFULLLEVEL_OFFSET, almost_full_level);
+}
+
+static inline int uart_rx_fifo_full(volatile void* base) {
+    return (REG(base, RX_FIFOFULL_OFFSET) != 0);
+}
+
+static inline int uart_rx_fifo_almost_full(volatile void* base) {
+    return (REG(base, RX_FIFOALMOSTFULL_OFFSET) != 0);
+}
+
+static inline void uart_rx_set_almost_empty_level(volatile void* base, uint32_t almost_empty_level) {
+    REGISTER_SET_VAL(base, RX_ALMOSTEMPTYLEVEL_OFFSET, almost_empty_level);
+}
+
+static inline int uart_rx_fifo_empty(volatile void* base) {
+    return (REG(base, RX_FIFOEMPTY_OFFSET) != 0);
+}
+
+static inline int uart_rx_fifo_almost_empty(volatile void* base) {
+    return (REG(base, RX_FIFOALMOSTEMPTY_OFFSET) != 0);
+}
+
+static inline void uart_rx_flush(volatile void* base) {
+    REGISTER_SET_VAL(base, RX_FLUSH_OFFSET, 1);
+}
+
+/* --------------------- Common Functions --------------------- */
+
+static inline uint8_t uart_get_errors(volatile void* base) {
+    return (uint8_t)REG(base, ERROR_OFFSET);
+}
+
+static inline uint8_t uart_get_top_errors(volatile void* base) {
+    return (((uint8_t)REG(base, ERROR_OFFSET)) >> 7) & 0x1;
+}
+
+static inline uint8_t uart_get_rx_errors(volatile void* base) {
+    return (((uint8_t)REG(base, ERROR_OFFSET)) >> 4) & 0x3;
+}
+
+static inline uint8_t uart_get_tx_errors(volatile void* base) {
+    return (((uint8_t)REG(base, ERROR_OFFSET)) >> 1) & 0x3;
+}
+
+static inline uint8_t uart_get_addr_decode_errors(volatile void* base) {
+    return ((uint8_t)REG(base, ERROR_OFFSET)) & 0x1;
+}
 
 
-//=========================
-// GPIO CORE DEFINITIONS
-//=========================
 
+static inline void uart_clear_errors(volatile void* base) {
+    REGISTER_SET_VAL(base, CLEARERROR_OFFSET, 1);
+}
 
-// Macro to access the GPIO register (assuming a single 32-bit register at offset 0)
-#define GPIO_REG(base) (*(volatile uint8_t *)((char *)(base)))
-#define GPIO_DIRECTION_OFFSET   0x00
-#define GPIO_OUTPUT_OFFSET      0x04
-// GPIO bit definitions:
-// Bit 7: DATA/COMMAND line
-#define GPIO_DATA_COMMAND_BIT   7
-#define GPIO_DATA_COMMAND_MASK  (1 << GPIO_DATA_COMMAND_BIT)
-// Bit 3: LED line
-#define GPIO_CS_BIT            6
-#define GPIO_CS_MASK           (1 << GPIO_CS_BIT)
-// Bit 4: RESET line
-#define GPIO_RESET_BIT          5
-#define GPIO_RESET_MASK         (1 << GPIO_RESET_BIT)
-// Bit 3: LED line
-#define GPIO_LED_BIT            4
-#define GPIO_LED_MASK           (1 << GPIO_LED_BIT)
+static inline uint32_t uart_get_rx_clocks_per_bit(volatile void* base) {
+    return REG(base, RX_CLOCKSPERBIT_OFFSET);
+}
 
-
-
-#define GPIO_DIRECTION_MASK     (GPIO_LED_MASK | GPIO_RESET_MASK | GPIO_DATA_COMMAND_MASK | GPIO_CS_MASK)
-
-
-// Macros for GPIO operations using the mapped GPIO base pointer
-#define SET_TFT_DATA_DIR(base, val)              REGISTER_SET_VAL(base, GPIO_DIRECTION_OFFSET, (val))
-
-#define SET_TFT_DATA_COMMAND(base, val)     REGISTER_SET(base, GPIO_OUTPUT_OFFSET, GPIO_DATA_COMMAND_MASK, GPIO_DATA_COMMAND_BIT, (val))
-
-#define SET_TFT_RESET(base, val)            REGISTER_SET(base, GPIO_OUTPUT_OFFSET, GPIO_RESET_MASK, GPIO_RESET_BIT, (val))
-
-#define SET_TFT_LED(base, val)              REGISTER_SET(base, GPIO_OUTPUT_OFFSET, GPIO_LED_MASK, GPIO_LED_BIT, (val))
-#define SET_TFT_CS_FORCE(base, val)         REGISTER_SET(base, GPIO_OUTPUT_OFFSET, GPIO_DATA_COMMAND_MASK, GPIO_DATA_COMMAND_BIT, (val))
-
-
-void tft_spi_initialize(void);
-
-void tft_spi_baud_rate(uint8_t speed);
-
-void tft_hardware_initialize(void);
-
-void tft_spi_write_data(uint8_t data);
-
-void tft_spi_write_data16(uint16_t word);
-
-void tft_spi_write_command(uint8_t cmd);
-
-void tft_spi_disable(void);
-
+static inline uint32_t uart_get_tx_clocks_per_bit(volatile void* base) {
+    return REG(base, TX_CLOCKSPERBIT_OFFSET);
+}
 
 #endif /* UART_DRIVER_H */
