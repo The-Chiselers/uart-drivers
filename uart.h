@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 // Base address and mapping size for your UART core
-#define UART_BASE_ADDRESS 0x43C10000
+#define UART_BASE_ADDRESS 0x43C30000
 #define UART_MAP_SIZE     0x1000    // 4KB page mapping
 
 // Register offsets relative to the base address
