@@ -180,7 +180,7 @@ static volatile void *gpio_base = NULL;
      }
      // Verify ACK response and wait to be ready for function response.
      PN532_UART_ReadData(buff, sizeof(PN532_ACK));
-     printf("Reading data\n");
+     printf("Readin data\n");
      for (uint8_t i = 0; i < sizeof(PN532_ACK); i++) {
          if (PN532_ACK[i] != buff[i]) {
              printf("Did not receive expected ACK from PN532!\n");
@@ -514,11 +514,15 @@ static volatile void *gpio_base = NULL;
  * UART
  **************************************************************************/
 int PN532_UART_ReadData(uint8_t* data, uint16_t count) {
+  printf("PN532_UART_ReadData\n");
+
   int index = 0;
   int length = count; // length of frame (data[3]) might be shorter than the count
   while (index < 4) {
       if (uart_rx_data_available()) {
           data[index] = uart_rx_read_byte();
+          printf("Data RX: 0x%02X\n", data[index]);
+
           index++;
       } else {
           delay(5);
@@ -530,6 +534,8 @@ int PN532_UART_ReadData(uint8_t* data, uint16_t count) {
   while (index < length) {
       if (uart_rx_data_available()) {
           data[index] = uart_rx_read_byte();
+          printf("Data RX: 0x%02X\n", data[index]);
+
           if (index == 3 && data[index] != 0) {
               length = data[index] + 7;
           }
