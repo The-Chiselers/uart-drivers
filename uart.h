@@ -49,7 +49,7 @@
 
 
 // Macro to access a register: given a mapped base pointer and offset
-#define REG(base, offset) (*(volatile uint8_t *)((char *)(base) + (offset)))
+#define REG(base, offset) (*(volatile uint32_t *)((char *)(base) + (offset)))
 
 // Generic register set macro: read current value, clear bits (mask), then set new bits.
 #define REGISTER_SET(base, offset, mask, shift, val) do { \

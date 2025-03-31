@@ -173,6 +173,8 @@ static volatile void *gpio_base = NULL;
          printf("Trying to wakeup\n");
          return PN532_STATUS_ERROR;
      }
+     printf("frame sent\n");
+
      if (!PN532_UART_WaitReady(timeout)) {
          return PN532_STATUS_ERROR;
      }
@@ -600,6 +602,7 @@ void PN532_UART_Init() {
   // hardware wakeup
   PN532_UART_Wakeup();
   printf("wakeup done");
+  
 
 }
 
