@@ -164,6 +164,8 @@ static volatile void *gpio_base = NULL;
      for (uint8_t i = 0; i < params_length; i++) {
          buff[2 + i] = params[i];
      }
+     printf("function call\n");
+
      // Send frame and wait for response.
      if (PN532_WriteFrame(buff, params_length + 2) != PN532_STATUS_OK) {
       
@@ -603,11 +605,11 @@ void PN532_UART_Init() {
 
 int PN532_Reset(void) {
   SET_NFC_RESET(gpio_base, 1);
-  usleep(100000);
+  usleep(100);
   SET_NFC_RESET(gpio_base, 0);
-  usleep(500000);
+  usleep(500);
   SET_NFC_RESET(gpio_base, 1);
-  usleep(100000);
+  usleep(100);
   return PN532_STATUS_OK;
 }
 /**************************************************************************

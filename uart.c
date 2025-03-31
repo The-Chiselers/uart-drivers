@@ -33,7 +33,7 @@ void uart_initialize(void) {
         exit(EXIT_FAILURE);
     }
 
-    printf("INIT DONE\n");
+    printf("Uart INIT DONE\n");
 }
 
 /*
