@@ -30,9 +30,20 @@
  #include <stdio.h>
  #include "pn532.h"
  #include "uart.h"
+ #include <time.h>
+ #include "gpio.h"
+#include <sys/mman.h>
+
+#include <fcntl.h>
+
+
+
  
  const uint8_t PN532_ACK[] = {0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00};
  const uint8_t PN532_FRAME_START[] = {0x00, 0x00, 0xFF};
+ static int gpio_fd = -1;
+static volatile void *gpio_base = NULL;
+
  
  #define PN532_FRAME_MAX_LENGTH              32
  #define PN532_DEFAULT_TIMEOUT               1000
@@ -496,3 +507,97 @@
                                params, sizeof(params), PN532_DEFAULT_TIMEOUT);
  }
  
+
+ /**************************************************************************
+ * UART
+ **************************************************************************/
+int PN532_UART_ReadData(uint8_t* data, uint16_t count) {
+  int index = 0;
+  int length = count; // length of frame (data[3]) might be shorter than the count
+  while (index < 4) {
+      if (uart_rx_data_available()) {
+          data[index] = uart_rx_read_byte();
+          index++;
+      } else {
+          delay(5);
+      }
+  }
+  if (data[3] != 0) {
+      length = data[3] + 7;
+  }
+  while (index < length) {
+      if (uart_rx_data_available()) {
+          data[index] = uart_rx_read_byte();
+          if (index == 3 && data[index] != 0) {
+              length = data[index] + 7;
+          }
+          index++;
+      } else {
+          delay(5);
+      }
+  }
+  return PN532_STATUS_OK;
+}
+
+int PN532_UART_WriteData(uint8_t *data, uint16_t count) {
+  // clear FIFO queue of UART
+  while (uart_rx_data_available()) {
+    uart_rx_read_byte();
+  }
+  uart_tx_array(data, count);
+  return PN532_STATUS_OK;
+}
+
+bool PN532_UART_WaitReady(uint32_t timeout) {
+  struct timespec timenow;
+  struct timespec timestart;
+  clock_gettime(CLOCK_MONOTONIC, &timestart);
+  while (1) {
+      if (uart_rx_data_available() > 0) {
+          return true;
+      } else {
+          delay(50);
+      }
+      clock_gettime(CLOCK_MONOTONIC, &timenow);
+      if ((timenow.tv_sec - timestart.tv_sec) * 1000 + \
+          (timenow.tv_nsec - timestart.tv_nsec) / 1000000 > timeout) {
+          break;
+      }
+  }
+  // Time out!
+  return false;
+}
+
+int PN532_UART_Wakeup(void) {
+  // Send any special commands/data to wake up PN532
+  uint8_t data[] = {0x55, 0x55, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x03, 0xFD, 0xD4, 0x14, 0x01, 0x17, 0x00};
+  uart_tx_array(data, 24);
+  delay(50);
+  return PN532_STATUS_OK;
+}
+
+void PN532_UART_Init(PN532* pn532) {
+
+  gpio_fd = open("/dev/mem", O_RDWR | O_SYNC);
+  gpio_base = mmap(NULL, GPIO_MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED,
+    gpio_fd, GPIO_BASE_ADDRESS);
+  // UART setup
+  
+  // hardware reset
+  pn532->reset();
+  // hardware wakeup
+  PN532_UART_Wakeup();
+}
+
+int PN532_Reset(void) {
+  SET_NFC_RESET(gpio_base, 1);
+  usleep(100000);
+  SET_NFC_RESET(gpio_base, 0);
+  usleep(500000);
+  SET_NFC_RESET(gpio_base, 1);
+  usleep(100000);
+  return PN532_STATUS_OK;
+}
+/**************************************************************************
+* End: UART
+**************************************************************************/
