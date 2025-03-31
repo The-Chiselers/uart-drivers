@@ -180,6 +180,7 @@ static volatile void *gpio_base = NULL;
      }
      // Verify ACK response and wait to be ready for function response.
      PN532_UART_ReadData(buff, sizeof(PN532_ACK));
+     printf("Reading data\n");
      for (uint8_t i = 0; i < sizeof(PN532_ACK); i++) {
          if (PN532_ACK[i] != buff[i]) {
              printf("Did not receive expected ACK from PN532!\n");
@@ -602,7 +603,7 @@ void PN532_UART_Init() {
   // hardware wakeup
   PN532_UART_Wakeup();
   printf("wakeup done");
-  
+
 
 }
 
