@@ -45,7 +45,7 @@
 static volatile void *gpio_base = NULL;
 
  
- #define PN532_FRAME_MAX_LENGTH              32
+ #define PN532_FRAME_MAX_LENGTH              24
  #define PN532_DEFAULT_TIMEOUT               1000
  
  /**
@@ -579,7 +579,7 @@ bool PN532_UART_WaitReady(uint32_t timeout) {
 int PN532_UART_Wakeup(void) {
   // Send any special commands/data to wake up PN532
   uint8_t data[] = {0x55, 0x55, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x03, 0xFD, 0xD4, 0x14, 0x01, 0x17, 0x00};
-  uart_tx_array(data, 24);
+  uart_tx_array(data, 32);
   delay(50);
   return PN532_STATUS_OK;
 }

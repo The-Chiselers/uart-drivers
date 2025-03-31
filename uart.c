@@ -139,6 +139,7 @@ void uart_tx_array(uint8_t* data, uint16_t length) {
             usleep(1);
         }
     }
+    printf("Sent %d bytes\n", length);
     // Once all bytes are queued, trigger the transmission.
     uart_tx_send_queue(1);
 }
