@@ -15,8 +15,9 @@
  * This function is called by the graphics library during initialization.
  */
 void uart_initialize(void) {
-    // printf("INIT UART\n");
+    printf("INIT UART start\n");
     // Open /dev/mem to access physical memory.
+
     uart_fd = open("/dev/mem", O_RDWR | O_SYNC);
     if (uart_fd < 0) {
         perror("uart_initialize: Error opening /dev/mem");
