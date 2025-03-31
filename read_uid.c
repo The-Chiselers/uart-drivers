@@ -2,7 +2,8 @@
 #include <stdint.h>
 #include <time.h>
 #include "pn532.h"
-#include "pn532_rpi.h"
+// #include "pn532_rpi.h"
+
 
 int main(int argc, char** argv) {
     uint8_t buff[255];
