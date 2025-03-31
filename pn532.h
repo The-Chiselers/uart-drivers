@@ -240,16 +240,7 @@
  // Other Error Definitions
  #define PN532_STATUS_ERROR                                              (-1)
  #define PN532_STATUS_OK                                                 (0)
- 
- typedef struct _PN532 {
-     int (*reset)(void);
-     int (*read_data)(uint8_t* data, uint16_t count);
-     int (*write_data)(uint8_t *data, uint16_t count);
-     bool (*wait_ready)(uint32_t timeout);
-     int (*wakeup)(void);
-     void (*log)(const char* log);
- } PN532;
- 
+
  
  int PN532_WriteFrame(uint8_t* data, uint16_t length);
  int PN532_ReadFrame(uint8_t* buff, uint16_t length);
@@ -262,6 +253,8 @@
  int PN532_MifareClassicWriteBlock(uint8_t* data, uint16_t block_number);
  int PN532_Ntag2xxReadBlock(uint8_t* response, uint16_t block_number);
  int PN532_Ntag2xxWriteBlock(uint8_t* data, uint16_t block_number);
+ bool PN532_UART_WaitReady(uint32_t timeout);
+ int PN532_UART_ReadData(uint8_t* data, uint16_t count);
  
  #ifdef __cplusplus
  }
