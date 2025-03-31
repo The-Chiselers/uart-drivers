@@ -70,53 +70,53 @@ void uart_cleanup(void);
 
 /* --------------------- Transmitter Functions --------------------- */
 
-static inline void uart_tx_set_baudrate(uint32_t clock_freq, uint32_t baud_rate);
-static inline void uart_tx_set_num_data_bits(uint8_t data_bits);
-static inline void uart_tx_set_use_parity(int use_parity);
+void uart_tx_set_baudrate(uint32_t clock_freq, uint32_t baud_rate);
+void uart_tx_set_num_data_bits(uint8_t data_bits);
+void uart_tx_set_use_parity(int use_parity);
 
-static inline void uart_tx_set_parity_odd(int parity_odd);
-static inline void uart_tx_set_lsb_first(int lsb_first);
-static inline int uart_tx_add_byte_to_queue(uint8_t data);
-static inline void uart_tx_send_queue(uint8_t data);
+void uart_tx_set_parity_odd(int parity_odd);
+void uart_tx_set_lsb_first(int lsb_first);
+int uart_tx_add_byte_to_queue(uint8_t data);
+void uart_tx_send_queue(uint8_t data);
 
-static inline int uart_tx_send_byte(uint8_t data);
-static inline void uart_tx_set_almost_full_level(uint32_t almost_full_level);
-static inline int uart_tx_fifo_full(void);
-static inline int uart_tx_fifo_almost_full(void);
-static inline void uart_tx_set_almost_empty_level(uint32_t almost_empty_level);
-static inline int uart_tx_fifo_empty(void);
-static inline int uart_tx_fifo_almost_empty(void);
-static inline void uart_tx_flush(void);
-static inline void uart_tx_array(uint8_t* data, uint16_t length);
+int uart_tx_send_byte(uint8_t data);
+void uart_tx_set_almost_full_level(uint32_t almost_full_level);
+int uart_tx_fifo_full(void);
+int uart_tx_fifo_almost_full(void);
+void uart_tx_set_almost_empty_level(uint32_t almost_empty_level);
+int uart_tx_fifo_empty(void);
+int uart_tx_fifo_almost_empty(void);
+void uart_tx_flush(void);
+void uart_tx_array(uint8_t* data, uint16_t length);
 
 /* --------------------- Receiver Functions --------------------- */
-static inline void uart_rx_set_baudrate(uint32_t clock_freq, uint32_t baud_rate);
-static inline void uart_rx_set_num_data_bits(uint8_t data_bits);
-static inline void uart_rx_set_use_parity(int use_parity);
+void uart_rx_set_baudrate(uint32_t clock_freq, uint32_t baud_rate);
+void uart_rx_set_num_data_bits(uint8_t data_bits);
+void uart_rx_set_use_parity(int use_parity);
 
-static inline void uart_rx_set_parity_odd(int parity_odd);
-static inline void uart_rx_set_lsb_first(int lsb_first);
-static inline uint8_t uart_rx_read_byte(void);
-static inline uint8_t uart_rx_peek_byte(void);
-static inline int uart_rx_data_available(void);
-static inline void uart_rx_set_almost_full_level(uint32_t almost_full_level);
-static inline int uart_rx_fifo_full(void);
-static inline int uart_rx_fifo_almost_full(void);
-static inline void uart_rx_set_almost_empty_level(uint32_t almost_empty_level);
-static inline int uart_rx_fifo_empty(void);
-static inline int uart_rx_fifo_almost_empty(void);
-static inline void uart_rx_flush(void);
-static inline void uart_rx_read_array(uint8_t* response, uint16_t length);
+void uart_rx_set_parity_odd(int parity_odd);
+void uart_rx_set_lsb_first(int lsb_first);
+uint8_t uart_rx_read_byte(void);
+uint8_t uart_rx_peek_byte(void);
+int uart_rx_data_available(void);
+void uart_rx_set_almost_full_level(uint32_t almost_full_level);
+int uart_rx_fifo_full(void);
+int uart_rx_fifo_almost_full(void);
+void uart_rx_set_almost_empty_level(uint32_t almost_empty_level);
+int uart_rx_fifo_empty(void);
+int uart_rx_fifo_almost_empty(void);
+void uart_rx_flush(void);
+void uart_rx_read_array(uint8_t* response, uint16_t length);
 
 /* --------------------- Common Functions --------------------- */
-static inline uint8_t uart_get_errors(void);
-static inline uint8_t uart_get_top_errors(void);
-static inline uint8_t uart_get_rx_errors(void);
-static inline uint8_t uart_get_tx_errors(void);
-static inline uint8_t uart_get_addr_decode_errors(void);
+uint8_t uart_get_errors(void);
+uint8_t uart_get_top_errors(void);
+uint8_t uart_get_rx_errors(void);
+uint8_t uart_get_tx_errors(void);
+uint8_t uart_get_addr_decode_errors(void);
 
-static inline void uart_clear_errors(void);
-static inline uint32_t uart_get_rx_clocks_per_bit(void);
-static inline uint32_t uart_get_tx_clocks_per_bit(void);
+void uart_clear_errors(void);
+uint32_t uart_get_rx_clocks_per_bit(void);
+uint32_t uart_get_tx_clocks_per_bit(void);
 
 #endif /* UART_DRIVER_H */

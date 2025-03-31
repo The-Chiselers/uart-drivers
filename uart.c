@@ -54,74 +54,74 @@ void uart_cleanup(void) {
 
 /* --------------------- Transmit Functions --------------------- */
 
-static inline void uart_tx_set_baudrate(uint32_t clock_freq, uint32_t baud_rate) {
+void uart_tx_set_baudrate(uint32_t clock_freq, uint32_t baud_rate) {
     REGISTER_SET_VAL(uart_base, TX_CLOCKFREQ_OFFSET, clock_freq);
     REGISTER_SET_VAL(uart_base, TX_BAUDRATE_OFFSET, baud_rate);
     REGISTER_SET_VAL(uart_base, TX_UPDATEBAUD_OFFSET, 1);
 }
 
-static inline void uart_tx_set_num_data_bits(uint8_t data_bits) {
+void uart_tx_set_num_data_bits(uint8_t data_bits) {
     REGISTER_SET_VAL(uart_base, TX_NUMOUTPUTBITSDB_OFFSET, data_bits);
 }
 
-static inline void uart_tx_set_use_parity(int use_parity) {
+void uart_tx_set_use_parity(int use_parity) {
     REGISTER_SET_VAL(uart_base, TX_USEPARITYDB_OFFSET, use_parity ? 1 : 0);
 }
 
-static inline void uart_tx_set_parity_odd(int parity_odd) {
+void uart_tx_set_parity_odd(int parity_odd) {
     REGISTER_SET_VAL(uart_base, TX_PARITYODDDB_OFFSET, parity_odd ? 1 : 0);
 }
 
-static inline void uart_tx_set_lsb_first(int lsb_first) {
+void uart_tx_set_lsb_first(int lsb_first) {
     REGISTER_SET_VAL(uart_base, TX_LSBFIRST_OFFSET, lsb_first ? 1 : 0);
 }
 
-static inline int uart_tx_add_byte_to_queue(uint8_t data) {
+int uart_tx_add_byte_to_queue(uint8_t data) {
     if (REG(uart_base, TX_FIFOFULL_OFFSET)) return -1;
     REGISTER_SET_VAL(uart_base, TX_DATAIN_OFFSET, data);
     return 0;
 }
 
-static inline void uart_tx_send_queue(uint8_t data) {
+void uart_tx_send_queue(uint8_t data) {
     REGISTER_SET_VAL(uart_base, TX_LOAD_OFFSET, 1);
 }
 
-static inline int uart_tx_send_byte(uint8_t data) {
+int uart_tx_send_byte(uint8_t data) {
     if (REG(uart_base, TX_FIFOFULL_OFFSET)) return -1;
     REGISTER_SET_VAL(uart_base, TX_DATAIN_OFFSET, data);
     REGISTER_SET_VAL(uart_base, TX_LOAD_OFFSET, 1);
     return 0;
 }
 
-static inline void uart_tx_set_almost_full_level(uint32_t almost_full_level) {
+void uart_tx_set_almost_full_level(uint32_t almost_full_level) {
     REGISTER_SET_VAL(uart_base, TX_ALMOSTFULLLEVEL_OFFSET, almost_full_level);
 }
 
-static inline int uart_tx_fifo_full(void) {
+int uart_tx_fifo_full(void) {
     return (REG(uart_base, TX_FIFOFULL_OFFSET) != 0);
 }
 
-static inline int uart_tx_fifo_almost_full(void) {
+int uart_tx_fifo_almost_full(void) {
     return (REG(uart_base, TX_FIFOALMOSTFULL_OFFSET) != 0);
 }
 
-static inline void uart_tx_set_almost_empty_level(uint32_t almost_empty_level) {
+void uart_tx_set_almost_empty_level(uint32_t almost_empty_level) {
     REGISTER_SET_VAL(uart_base, TX_ALMOSTEMPTYLEVEL_OFFSET, almost_empty_level);
 }
 
-static inline int uart_tx_fifo_empty(void) {
+int uart_tx_fifo_empty(void) {
     return (REG(uart_base, TX_FIFOEMPTY_OFFSET) != 0);
 }
 
-static inline int uart_tx_fifo_almost_empty(void) {
+int uart_tx_fifo_almost_empty(void) {
     return (REG(uart_base, TX_FIFOALMOSTEMPTY_OFFSET) != 0);
 }
 
-static inline void uart_tx_flush(void) {
+void uart_tx_flush(void) {
     REGISTER_SET_VAL(uart_base, TX_FLUSH_OFFSET, 1);
 }
 
-static inline void uart_tx_array(uint8_t* data, uint16_t length) {
+void uart_tx_array(uint8_t* data, uint16_t length) {
     for (uint16_t i = 0; i < length; i++) {
         // Attempt to add each byte to the queue.
         // If uart_tx_add_byte_to_queue returns -1 (FIFO full),
@@ -136,70 +136,70 @@ static inline void uart_tx_array(uint8_t* data, uint16_t length) {
 
 /* --------------------- Receiver Functions --------------------- */
 
-static inline void uart_rx_set_baudrate(uint32_t clock_freq,
+void uart_rx_set_baudrate(uint32_t clock_freq,
                                         uint32_t baud_rate) {
     REGISTER_SET_VAL(uart_base, RX_CLOCKFREQ_OFFSET, clock_freq);
     REGISTER_SET_VAL(uart_base, RX_BAUDRATE_OFFSET, baud_rate);
     REGISTER_SET_VAL(uart_base, RX_UPDATEBAUD_OFFSET, 1);
 }
 
-static inline void uart_rx_set_num_data_bits(uint8_t data_bits) {
+void uart_rx_set_num_data_bits(uint8_t data_bits) {
     REGISTER_SET_VAL(uart_base, RX_NUMOUTPUTBITSDB_OFFSET, data_bits);
 }
 
-static inline void uart_rx_set_use_parity(int use_parity) {
+void uart_rx_set_use_parity(int use_parity) {
     REGISTER_SET_VAL(uart_base, RX_USEPARITYDB_OFFSET, use_parity ? 1 : 0);
 }
 
-static inline void uart_rx_set_parity_odd(int parity_odd) {
+void uart_rx_set_parity_odd(int parity_odd) {
     REGISTER_SET_VAL(uart_base, RX_PARITYODDDB_OFFSET, parity_odd ? 1 : 0);
 }
 
-static inline void uart_rx_set_lsb_first(int lsb_first) {
+void uart_rx_set_lsb_first(int lsb_first) {
     REGISTER_SET_VAL(uart_base, RX_LSBFIRST_OFFSET, lsb_first ? 1 : 0);
 }
 
-static inline uint8_t uart_rx_read_byte(void) {
+uint8_t uart_rx_read_byte(void) {
     return (uint8_t)REG(uart_base, RX_DATA_OFFSET);
 }
 
-static inline uint8_t uart_rx_peek_byte(void) {
+uint8_t uart_rx_peek_byte(void) {
     return (uint8_t)REG(uart_base, RX_DATAPEEK_OFFSET);
 }
 
-static inline int uart_rx_data_available(void) {
+int uart_rx_data_available(void) {
     return (REG(uart_base, RX_DATAAVAILABLE_OFFSET) != 0);
 }
 
-static inline void uart_rx_set_almost_full_level( uint32_t almost_full_level) {
+void uart_rx_set_almost_full_level( uint32_t almost_full_level) {
     REGISTER_SET_VAL(uart_base, RX_ALMOSTFULLLEVEL_OFFSET, almost_full_level);
 }
 
-static inline int uart_rx_fifo_full(void) {
+int uart_rx_fifo_full(void) {
     return (REG(uart_base, RX_FIFOFULL_OFFSET) != 0);
 }
 
-static inline int uart_rx_fifo_almost_full(void) {
+int uart_rx_fifo_almost_full(void) {
     return (REG(uart_base, RX_FIFOALMOSTFULL_OFFSET) != 0);
 }
 
-static inline void uart_rx_set_almost_empty_level(uint32_t almost_empty_level) {
+void uart_rx_set_almost_empty_level(uint32_t almost_empty_level) {
     REGISTER_SET_VAL(uart_base, RX_ALMOSTEMPTYLEVEL_OFFSET, almost_empty_level);
 }
 
-static inline int uart_rx_fifo_empty(void) {
+int uart_rx_fifo_empty(void) {
     return (REG(uart_base, RX_FIFOEMPTY_OFFSET) != 0);
 }
 
-static inline int uart_rx_fifo_almost_empty( void ) {
+int uart_rx_fifo_almost_empty( void ) {
     return (REG(uart_base, RX_FIFOALMOSTEMPTY_OFFSET) != 0);
 }
 
-static inline void uart_rx_flush(void) {
+void uart_rx_flush(void) {
     REGISTER_SET_VAL(uart_base, RX_FLUSH_OFFSET, 1);
 }
 
-static inline void uart_rx_read_array( uint8_t* response, uint16_t length) {
+void uart_rx_read_array( uint8_t* response, uint16_t length) {
     uint16_t count = 0;
     // Continue reading while there is data available.
     while (uart_rx_data_available()) {
@@ -215,34 +215,34 @@ static inline void uart_rx_read_array( uint8_t* response, uint16_t length) {
 
 /* --------------------- Common Functions --------------------- */
 
-static inline uint8_t uart_get_errors(void) {
+uint8_t uart_get_errors(void) {
     return (uint8_t)REG(uart_base, ERROR_OFFSET);
 }
 
-static inline uint8_t uart_get_top_errors(void) {
+uint8_t uart_get_top_errors(void) {
     return (((uint8_t)REG(uart_base, ERROR_OFFSET)) >> 7) & 0x1;
 }
 
-static inline uint8_t uart_get_rx_errors(void) {
+uint8_t uart_get_rx_errors(void) {
     return (((uint8_t)REG(uart_base, ERROR_OFFSET)) >> 4) & 0x3;
 }
 
-static inline uint8_t uart_get_tx_errors(void) {
+uint8_t uart_get_tx_errors(void) {
     return (((uint8_t)REG(uart_base, ERROR_OFFSET)) >> 1) & 0x3;
 }
 
-static inline uint8_t uart_get_addr_decode_errors(void) {
+uint8_t uart_get_addr_decode_errors(void) {
     return ((uint8_t)REG(uart_base, ERROR_OFFSET)) & 0x1;
 }
 
-static inline void uart_clear_errors(void) {
+void uart_clear_errors(void) {
     REGISTER_SET_VAL(uart_base, CLEARERROR_OFFSET, 1);
 }
 
-static inline uint32_t uart_get_rx_clocks_per_bit(void) {
+uint32_t uart_get_rx_clocks_per_bit(void) {
     return REG(uart_base, RX_CLOCKSPERBIT_OFFSET);
 }
 
-static inline uint32_t uart_get_tx_clocks_per_bit(void) {
+uint32_t uart_get_tx_clocks_per_bit(void) {
     return REG(uart_base, TX_CLOCKSPERBIT_OFFSET);
 }
