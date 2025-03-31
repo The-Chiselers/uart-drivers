@@ -579,11 +579,16 @@ void PN532_UART_Init() {
   gpio_base = mmap(NULL, GPIO_MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED,
     gpio_fd, GPIO_BASE_ADDRESS);
   // UART setup
-  
+  printf("gpio mapped");
   // hardware reset
+
   PN532_Reset();
+  printf("reset done");
+
   // hardware wakeup
   PN532_UART_Wakeup();
+  printf("wakeup done");
+
 }
 
 int PN532_Reset(void) {

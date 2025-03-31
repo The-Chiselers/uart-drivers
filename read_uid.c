@@ -10,9 +10,9 @@ int main(int argc, char** argv) {
     uint8_t uid[MIFARE_UID_MAX_LENGTH];
     int32_t uid_len = 0;
     printf("Hello!\r\n");
-    //PN532_SPI_Init(&pn532);
-    // PN532_I2C_Init(&pn532);
     PN532_UART_Init();
+    printf("Init Done!\r\n");
+
     if (PN532_GetFirmwareVersion( buff) == PN532_STATUS_OK) {
         printf("Found PN532 with firmware version: %d.%d\r\n", buff[1], buff[2]);
     } else {
