@@ -575,7 +575,17 @@ int PN532_UART_Wakeup(void) {
 
 void PN532_UART_Init() {
 
+  uart_initialize();
+  printf("uart mapped");
+
   gpio_fd = open("/dev/mem", O_RDWR | O_SYNC);
+  if (gpio_fd < 0) {
+    perror("uart_initialize: Error opening /dev/mem");
+    exit(1);
+}
+
+  printf("mem dev open");
+
   gpio_base = mmap(NULL, GPIO_MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED,
     gpio_fd, GPIO_BASE_ADDRESS);
   // UART setup
