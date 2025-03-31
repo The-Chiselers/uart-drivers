@@ -45,7 +45,7 @@
 static volatile void *gpio_base = NULL;
 
  
- #define PN532_FRAME_MAX_LENGTH              24
+ #define PN532_FRAME_MAX_LENGTH              255
  #define PN532_DEFAULT_TIMEOUT               1000
  
  /**
@@ -171,6 +171,7 @@ static volatile void *gpio_base = NULL;
       
          PN532_UART_Wakeup();
          printf("Trying to wakeup\n");
+         usleep(500000);
          return PN532_STATUS_ERROR;
      }
      printf("frame sent\n");
@@ -609,7 +610,6 @@ void PN532_UART_Init() {
   // hardware wakeup
   PN532_UART_Wakeup();
   printf("wakeup done");
-
 
 }
 
