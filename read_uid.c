@@ -18,12 +18,12 @@ int main(int argc, char** argv) {
     } else {
         return -1;
     }
-    PN532_SamConfiguration(&pn532);
+    PN532_SamConfiguration();
     printf("Waiting for RFID/NFC card...\r\n");
     while (1)
     {
         // Check if a card is available to read
-        uid_len = PN532_ReadPassiveTarget(&pn532, uid, PN532_MIFARE_ISO14443A, 1000);
+        uid_len = PN532_ReadPassiveTarget(uid, PN532_MIFARE_ISO14443A, 1000);
         if (uid_len == PN532_STATUS_ERROR) {
             printf(".");
             fflush(stdout);

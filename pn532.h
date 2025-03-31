@@ -255,7 +255,7 @@
  int PN532_ReadFrame(uint8_t* buff, uint16_t length);
  int PN532_GetFirmwareVersion(uint8_t* version);
  int PN532_CallFunction(uint8_t command, uint8_t* response, uint16_t response_length, uint8_t* params, uint16_t params_length, uint32_t timeout);
- int PN532_SamConfiguration(PN532* pn532);
+ int PN532_SamConfiguration(void);
  int PN532_ReadPassiveTarget(uint8_t* response, uint8_t card_baud, uint32_t timeout);
  int PN532_MifareClassicAuthenticateBlock(uint8_t* uid, uint8_t uid_length, uint16_t block_number, uint16_t key_number, uint8_t* key);
  int PN532_MifareClassicReadBlock(uint8_t* response, uint16_t block_number);

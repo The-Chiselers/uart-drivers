@@ -218,7 +218,7 @@ static volatile void *gpio_base = NULL;
  /**
    * @brief: Configure the PN532 to read MiFare cards.
    */
- int PN532_SamConfiguration(PN532* pn532) {
+ int PN532_SamConfiguration() {
      // Send SAM configuration command with configuration for:
      // - 0x01, normal mode
      // - 0x14, timeout 50ms * 20 = 1 second
@@ -238,7 +238,6 @@ static volatile void *gpio_base = NULL;
    * @retval: Length of UID, or -1 if error.
    */
  int PN532_ReadPassiveTarget(
-     PN532* pn532,
      uint8_t* response,
      uint8_t card_baud,
      uint32_t timeout
@@ -277,7 +276,6 @@ static volatile void *gpio_base = NULL;
    * @retval: PN532 error code.
    */
  int PN532_MifareClassicAuthenticateBlock(
-     PN532* pn532,
      uint8_t* uid,
      uint8_t uid_length,
      uint16_t block_number,
