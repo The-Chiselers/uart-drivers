@@ -135,6 +135,8 @@ void uart_tx_array(uint8_t* data, uint16_t length) {
         // Attempt to add each byte to the queue.
         // If uart_tx_add_byte_to_queue returns -1 (FIFO full),
         // wait a short time and retry the same byte.
+        printf("Add 0x%02X\n", data[i]);
+
         while (uart_tx_add_byte_to_queue( data[i]) == -1) {
             usleep(1);
         }
