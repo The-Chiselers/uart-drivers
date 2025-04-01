@@ -33,7 +33,7 @@ void uart_initialize(void) {
         exit(EXIT_FAILURE);
     }
 
-    uint32_t clk = 100000000;
+    uint32_t clk = 40000000;
     uint32_t baud = 115200;
 
     uart_tx_set_baudrate(clk, baud);
